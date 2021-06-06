@@ -3,50 +3,50 @@ from graphene import relay
 from graphene_django import DjangoObjectType
 from django.contrib.auth import get_user_model
 
-from . import models
+from .models import Domain
 
-class Domain(DjangoObjectType):
+#------
+# Types
+
+class DomainType(DjangoObjectType):
     class Meta:
-        model = models.Domain
+        model = Domain
         fields = ('id', 'name', 'address', 'owner', 'enabled')
         interfaces = (relay.Node, )
+
+class DomainConnectionType(relay.Connection):
+    class Meta:
+        node = DomainType
+
+#----------
+# Mutations
 
 class CreateDomain(relay.ClientIDMutation):
     class Input:
         name = graphene.String(required=True)
         address = graphene.String(required=True)
-        enabled = graphene.Boolean()
+        allowChoosingLocalpart = graphene.Boolean(required=True)
+        enabled = graphene.Boolean(required=True)
 
-    domain = graphene.Field(Domain)
+    domain = graphene.Field(DomainType)
 
     @staticmethod
-    def mutate_and_get_payload(root, info, name, address, enabled):
-        domain = Domain(
-            name=name,
-            address=address,
-            enabled=(enabled if enabled != None else True),
-            owner=info.context.user
-        )
-        domain.save()
-        return CreateDomain(domain=domain)
+    def mutate_and_get_payload(root, info, name, address, allowChoosingLocalpart, enabled):
+        pass
 
 class UpdateDomain(relay.ClientIDMutation):
     class Input:
         id = graphene.ID(required=True)
         name = graphene.String()
         address = graphene.String()
+        allowChoosingLocalpart = graphene.Boolean()
         enabled = graphene.Boolean()
 
-    domain = graphene.Field(Domain)
+    domain = graphene.Field(DomainType)
 
     @staticmethod
-    def mutate_and_get_payload(root, info, id, name, address, enabled):
-        domain = Domain.objects.get(pk=relay.from_global_id(id)[1])
-        if name:    domain.name    = name
-        if address: domain.address = address
-        if enabled: domain.enabled = enabled
-        domain.save()
-        return UpdateDomain(domain=domain)
+    def mutate_and_get_payload(root, info, id, name, address, allowChoosingLocalpart, enabled):
+        pass
 
 class DeleteDomain(relay.ClientIDMutation):
     class Input:
@@ -55,9 +55,7 @@ class DeleteDomain(relay.ClientIDMutation):
 
     @staticmethod
     def mutate_and_get_payload(root, info, id):
-        domain = Domain.objects.get(pk=relay.from_global_id(id)[1])
-        domain.delete()
-        return DeleteDomain(ok=True)
+        pass
 
 class Mutation(graphene.ObjectType):
     createDomain = graphene.Field(CreateDomain)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+from apps.recipient.models import Recipient
 from apps.domain.models import Domain
 
 class Alias(models.Model):
@@ -9,6 +10,7 @@ class Alias(models.Model):
     isLocalpartRandom = models.BooleanField()
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, related_name='aliases')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='aliases')
+    recipients = models.ManyToManyField(Recipient, related_name='aliases')
     enabled = models.BooleanField()
 
     def __str__(self):

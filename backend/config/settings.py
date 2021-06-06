@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django', 
     'apps.domain',
+    'apps.recipient',
     'apps.alias',
 ]
 
